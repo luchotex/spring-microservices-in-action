@@ -1,14 +1,44 @@
+#spring:
+#  application:
+#    name: config-server
+#    profiles:
+#      active:
+#      - vault
+#  cloud:
+#    config:
+#      server:
+#        vault:
+#          port: 8200
+#          host: 127.0.0.1
+#          kvVersion: 2
+#server:
+#  port: 8071
+
 spring:
   application:
     name: config-server
   profiles:
-    active: native
+    active:
+    - native
+    - git
+#    - vault
   cloud:
     config:
       server:
+        vault:
+          port: 8200
+          host: 127.0.0.1
+          kvVersion: 2
+          token: myroot
         native:
           search-locations: classpath:/config
+        git:
+          uri: https://github.com/luchotex/spring-microservices-in-action-config.git
+          searchPaths: licensingservice
+          default-label: main
 
-    
+
+
+
 server:
   port: 8071
