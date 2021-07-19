@@ -1,0 +1,72 @@
+version: '3.7'
+services:
+  database:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: "ostock_dev"
+    volumes:
+        - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
+        - ./data.sql:/docker-entrypoint-initdb.d/2-data.sql
+    networks:
+      backend:
+        aliases:
+            - "database"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  configserver:
+    build:
+      context: ../configserver
+      dockerfile: Dockerfile
+    image: luchotex1989/configserver:0.0.1-SNAPSHOT
+    ports:
+      - "8071:8071"
+    environment:
+      ENCRYPT_KEY: "secretkey"
+    networks:
+      backend:
+        aliases:
+          - "configserver"
+
+  licensingservice:
+    image: luchotex1989/licensing-service:0.0.1-SNAPSHOT
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: "dev"
+      SPRING_CLOUD_CONFIG_URI: "http://configserver:8071"
+      ENCRYPT_KEY: "IMSYMMETRIC"
+    depends_on:
+      configserver:
+        condition: service_started
+      database:
+        condition: service_healthy
+    networks:
+      - backend
+#    command: java -cp app:app/lib/* com.optimagrowth.license.LicensingServiceApplication
+  eurekaservice:
+    image: luchotex1989/eurekaserver:0.0.1-SNAPSHOT
+    ports:
+      - "8070:8070"
+    environment:
+      SPRING_PROFILES_ACTIVE: "dev"
+      SPRING_CLOUD_CONFIG_URI: "http://configserver:8071"
+    depends_on:
+      configserver:
+        condition: service_started
+    networks:
+      backend:
+        aliases:
+            - "eurekaserver"
+
+
+networks:
+  backend:
+    driver: bridge
