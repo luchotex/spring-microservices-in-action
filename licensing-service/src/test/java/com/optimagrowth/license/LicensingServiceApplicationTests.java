@@ -1,13 +1,13 @@
-//package com.optimagrowth.license;
+// package com.optimagrowth.license;
 //
-//import org.junit.jupiter.api.Test;
-//import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 //
-//@SpringBootTest
-//class LicensingServiceApplicationTests {
+// @SpringBootTest
+// class LicensingServiceApplicationTests {
 //
 //    @Test
 //    void contextLoads() {
 //    }
 //
-//}
+// }

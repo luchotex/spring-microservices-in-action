@@ -23,4 +23,4 @@ COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 #execute the
 
-ENTRYPOINT ["java","-cp","app:app/lib/*","com.optimagrowth.license.LicensingServiceApplication"]
+#ENTRYPOINT ["java","-cp","app:app/lib/*","com.optimagrowth.license.LicensingServiceApplication"]
