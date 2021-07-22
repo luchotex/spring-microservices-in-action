@@ -20,7 +20,7 @@ spring:
   profiles:
     active:
     - native
-    - git
+#    - git
 #    - vault
   cloud:
     config:
@@ -32,10 +32,10 @@ spring:
 #          token: myroot
         native:
           search-locations: classpath:/config
-        git:
-          uri: https://github.com/luchotex/spring-microservices-in-action-config.git
-          searchPaths: licensingservice
-          default-label: main
+#        git:
+#          uri: https://github.com/luchotex/spring-microservices-in-action-config.git
+#          searchPaths: licensingservice
+#          default-label: main
 server:
   port: 8071
 
