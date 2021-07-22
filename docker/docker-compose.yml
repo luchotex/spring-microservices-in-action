@@ -22,9 +22,9 @@ services:
       retries: 5
 
   configserver:
-    build:
-      context: ../configserver
-      dockerfile: Dockerfile
+#    build:
+#      context: ../configserver
+#      dockerfile: Dockerfile
     image: luchotex1989/configserver:0.0.1-SNAPSHOT
     ports:
       - "8071:8071"
@@ -50,7 +50,7 @@ services:
         condition: service_healthy
     networks:
       - backend
-#    command: java -cp app:app/lib/* com.optimagrowth.license.LicensingServiceApplication
+    command: java -cp app:app/lib/* com.optimagrowth.license.LicensingServiceApplication
   eurekaservice:
     image: luchotex1989/eurekaserver:0.0.1-SNAPSHOT
     ports:
@@ -59,13 +59,30 @@ services:
       SPRING_PROFILES_ACTIVE: "dev"
       SPRING_CLOUD_CONFIG_URI: "http://configserver:8071"
     depends_on:
+      database:
+        condition: service_healthy
       configserver:
         condition: service_started
     networks:
       backend:
         aliases:
             - "eurekaserver"
-
+  organizationservice:
+    image: luchotex1989/organization-service:0.0.1-SNAPSHOT
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: "dev"
+      SPRING_CLOUD_CONFIG_URI: "http://configserver:8071"
+      ENCRYPT_KEY: "IMSYMMETRIC"
+    depends_on:
+      configserver:
+        condition: service_started
+      database:
+        condition: service_healthy
+    networks:
+      - backend
+#    command: java -cp app:app/lib/* com.optimagrowth.organization.OrganizationServiceApplication
 
 networks:
   backend:
