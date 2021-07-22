@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 @RefreshScope
 @EntityScan(basePackages = {"com.optimagrowth.license.model"}) // scan JPA entities manuall
 @EnableDiscoveryClient
+@EnableFeignClients
 public class LicensingServiceApplication {
 
   public static void main(String[] args) {

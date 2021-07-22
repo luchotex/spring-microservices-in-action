@@ -5,6 +5,7 @@ import com.optimagrowth.license.model.License;
 import com.optimagrowth.license.model.Organization;
 import com.optimagrowth.license.repository.LicenseRepository;
 import com.optimagrowth.license.service.client.OrganizationDiscoveryClient;
+import com.optimagrowth.license.service.client.OrganizationFeignClient;
 import com.optimagrowth.license.service.client.OrganizationRestTemplateClient;
 import java.util.Locale;
 import java.util.Objects;
@@ -20,18 +21,21 @@ public class LicenseService {
   private ServiceConfig config;
   private OrganizationDiscoveryClient organizationDiscoveryClient;
   private OrganizationRestTemplateClient restTemplateClient;
+  private OrganizationFeignClient feignClient;
 
   public LicenseService(
       MessageSource messages,
       LicenseRepository licenseRepository,
       ServiceConfig config,
       OrganizationDiscoveryClient organizationDiscoveryClient,
-      OrganizationRestTemplateClient restTemplateClient) {
+      OrganizationRestTemplateClient restTemplateClient,
+      OrganizationFeignClient feignClient) {
     this.messages = messages;
     this.licenseRepository = licenseRepository;
     this.config = config;
     this.organizationDiscoveryClient = organizationDiscoveryClient;
     this.restTemplateClient = restTemplateClient;
+    this.feignClient = feignClient;
   }
 
   public License getLicense(String licenseId, String organizationId) {
@@ -101,7 +105,8 @@ public class LicenseService {
 
     switch (clientType) {
       case "feign":
-        result = null;
+        result = feignClient.getOrganization(organizationId);
+        ;
         break;
       case "rest":
         result = restTemplateClient.getOrganization(organizationId);
@@ -110,7 +115,7 @@ public class LicenseService {
         result = organizationDiscoveryClient.getOrganization(organizationId);
         break;
       default:
-        result = null;
+        result = restTemplateClient.getOrganization(organizationId);
         break;
     }
 
