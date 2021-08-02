@@ -18,6 +18,8 @@
         <spring-cloud.version>2020.0.3</spring-cloud.version>
         <docker.image.prefix>luchotex1989</docker.image.prefix>
         <google-java-format.version>1.10.0</google-java-format.version>
+        <spring-cloud-starter-netflix-hystrix.version>2.2.9.RELEASE
+        </spring-cloud-starter-netflix-hystrix.version>
     </properties>
     <dependencies>
         <dependency>
@@ -86,6 +88,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+            <version>${spring-cloud-starter-netflix-hystrix.version}</version>
         </dependency>
 
         <dependency>

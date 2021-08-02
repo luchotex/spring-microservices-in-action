@@ -1,5 +1,7 @@
 package com.optimagrowth.license.service;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.optimagrowth.license.config.ServiceConfig;
 import com.optimagrowth.license.model.License;
 import com.optimagrowth.license.model.Organization;
@@ -7,13 +9,17 @@ import com.optimagrowth.license.repository.LicenseRepository;
 import com.optimagrowth.license.service.client.OrganizationDiscoveryClient;
 import com.optimagrowth.license.service.client.OrganizationFeignClient;
 import com.optimagrowth.license.service.client.OrganizationRestTemplateClient;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class LicenseService {
 
   private MessageSource messages;
@@ -120,5 +126,31 @@ public class LicenseService {
     }
 
     return result;
+  }
+
+  @HystrixCommand(
+      commandProperties = {
+        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "12000")
+      })
+  public List<License> getLicensesByOrganization(String organizationId) {
+    randomlyRunLong();
+    return licenseRepository.findByOrganizationId(organizationId);
+  }
+
+  private void randomlyRunLong() {
+    Random rand = new Random();
+
+    int random = rand.nextInt(3) + 1;
+    if (random == 3) {
+      sleep();
+    }
+  }
+
+  private void sleep() {
+    try {
+      Thread.sleep(11000);
+    } catch (InterruptedException e) {
+      log.error(e.getMessage());
+    }
   }
 }
