@@ -1,7 +1,6 @@
 package com.optimagrowth.license.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.optimagrowth.license.config.ServiceConfig;
 import com.optimagrowth.license.model.License;
 import com.optimagrowth.license.model.Organization;
@@ -9,6 +8,7 @@ import com.optimagrowth.license.repository.LicenseRepository;
 import com.optimagrowth.license.service.client.OrganizationDiscoveryClient;
 import com.optimagrowth.license.service.client.OrganizationFeignClient;
 import com.optimagrowth.license.service.client.OrganizationRestTemplateClient;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -128,10 +128,12 @@ public class LicenseService {
     return result;
   }
 
-  @HystrixCommand(
-      commandProperties = {
-        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "12000")
-      })
+  //  @HystrixCommand(
+  //      commandProperties = {
+  //        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value =
+  // "12000")
+  //      })
+  @HystrixCommand(fallbackMethod = "buildFallbackLicenseList")
   public List<License> getLicensesByOrganization(String organizationId) {
     randomlyRunLong();
     return licenseRepository.findByOrganizationId(organizationId);
@@ -144,6 +146,17 @@ public class LicenseService {
     if (random == 3) {
       sleep();
     }
+  }
+
+  private List<License> buildFallbackLicenseList(String organizationId) {
+    List<License> fallbackList = new ArrayList<>();
+    License license = new License();
+    license.setLicenseId("0000000-00-00000");
+    license.setOrganizationId(organizationId);
+    license.setProductName("Sorry no licensing information currently available");
+    fallbackList.add(license);
+
+    return fallbackList;
   }
 
   private void sleep() {
