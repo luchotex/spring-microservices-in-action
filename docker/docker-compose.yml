@@ -25,7 +25,7 @@ services:
 #    build:
 #      context: ../configserver
 #      dockerfile: Dockerfile
-    image: luchotex1989/configserver:0.0.1-SNAPSHOT
+    image: luchotex1989/configserver:0.0.2-SNAPSHOT
     ports:
       - "8071:8071"
     environment:
@@ -36,7 +36,7 @@ services:
           - "configserver"
 
   licensingservice:
-    image: luchotex1989/licensing-service:0.0.1-SNAPSHOT
+    image: luchotex1989/licensing-service:0.0.2-SNAPSHOT
     ports:
       - "8080:8080"
     environment:
