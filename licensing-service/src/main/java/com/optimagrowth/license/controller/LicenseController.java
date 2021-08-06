@@ -5,13 +5,16 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import com.optimagrowth.license.model.License;
 import com.optimagrowth.license.service.LicenseService;
+import com.optimagrowth.license.utils.UserContextHolder;
 import java.util.List;
 import java.util.Locale;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "v1/organization/{organizationId}/license")
+@Slf4j
 public class LicenseController {
 
   private LicenseService licenseService;
@@ -71,6 +74,9 @@ public class LicenseController {
 
   @GetMapping(value = "/")
   public List<License> getLicenses(@PathVariable("organizationId") String organizationId) {
+    log.debug(
+        "LicenseServiceController Correlation id: {}",
+        UserContextHolder.getContext().getCorrelationId());
     return licenseService.getLicensesByOrganization(organizationId);
   }
 }

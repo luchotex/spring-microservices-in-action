@@ -8,6 +8,7 @@ import com.optimagrowth.license.repository.LicenseRepository;
 import com.optimagrowth.license.service.client.OrganizationDiscoveryClient;
 import com.optimagrowth.license.service.client.OrganizationFeignClient;
 import com.optimagrowth.license.service.client.OrganizationRestTemplateClient;
+import com.optimagrowth.license.utils.UserContextHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -133,8 +134,14 @@ public class LicenseService {
   //        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value =
   // "12000")
   //      })
-  @HystrixCommand(fallbackMethod = "buildFallbackLicenseList")
+  @HystrixCommand(
+      fallbackMethod = "buildFallbackLicenseList",
+      threadPoolKey = "getLicencesServiceThreadPool",
+      commandKey = "getLicencesCommand")
   public List<License> getLicensesByOrganization(String organizationId) {
+    log.debug(
+        "getLicensesByOrganization Correlation id: {}",
+        UserContextHolder.getContext().getCorrelationId());
     randomlyRunLong();
     return licenseRepository.findByOrganizationId(organizationId);
   }
