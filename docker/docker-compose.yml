@@ -25,7 +25,7 @@ services:
 #    build:
 #      context: ../configserver
 #      dockerfile: Dockerfile
-    image: luchotex1989/configserver:0.0.2-SNAPSHOT
+    image: luchotex1989/configserver:0.0.3-SNAPSHOT
     ports:
       - "8071:8071"
     environment:
@@ -51,7 +51,7 @@ services:
     networks:
       - backend
     command: java -cp app:app/lib/* com.optimagrowth.license.LicensingServiceApplication
-  eurekaservice:
+  eurekaserver:
     image: luchotex1989/eurekaserver:0.0.1-SNAPSHOT
     ports:
       - "8070:8070"
@@ -80,9 +80,28 @@ services:
         condition: service_started
       database:
         condition: service_healthy
+      eurekaserver:
+        condition: service_started
     networks:
       - backend
 #    command: java -cp app:app/lib/* com.optimagrowth.organization.OrganizationServiceApplication
+
+  gatewayserver:
+    image: luchotex1989/gatewayserver:0.0.1-SNAPSHOT
+    ports:
+      - "8072:8072"
+    environment:
+      SPRING_PROFILES_ACTIVE: "dev"
+      SPRING_CLOUD_CONFIG_URI: "http://configserver:8071"
+    depends_on:
+      database:
+        condition: service_healthy
+      configserver:
+        condition: service_started
+    networks:
+      backend:
+        aliases:
+          - "gateway"
 
 networks:
   backend:
