@@ -72,6 +72,7 @@ services:
     ports:
       - "8082:8082"
     environment:
+
       SPRING_PROFILES_ACTIVE: "dev"
       SPRING_CLOUD_CONFIG_URI: "http://configserver:8071"
       ENCRYPT_KEY: "IMSYMMETRIC"
@@ -102,6 +103,20 @@ services:
       backend:
         aliases:
           - "gateway"
+  authenticationserver:
+    image: luchotex1989/authentication-service:0.0.1-SNAPSHOT
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: "dev"
+      SPRING_CLOUD_CONFIG_URI: "http://configserver:8071"
+    depends_on:
+      configserver:
+        condition: service_started
+    networks:
+      backend:
+        aliases:
+          - "authentication"
 
 networks:
   backend:
