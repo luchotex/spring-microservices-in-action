@@ -22,14 +22,16 @@ public class AuthenticationServiceApplication {
     SpringApplication.run(AuthenticationServiceApplication.class, args);
   }
 
-  @RequestMapping(value = {"/user"}, produces = MediaType.APPLICATION_JSON)
+  @RequestMapping(
+      value = {"/user"},
+      produces = MediaType.APPLICATION_JSON)
   public Map<String, Object> user(OAuth2Authentication user) {
     Map<String, Object> userInfo = new HashMap<>();
     userInfo.put("user", user.getUserAuthentication().getPrincipal());
-    userInfo.put("authorities",
+    userInfo.put(
+        "authorities",
         AuthorityUtils.authorityListToSet(user.getUserAuthentication().getAuthorities()));
 
     return userInfo;
   }
-
 }

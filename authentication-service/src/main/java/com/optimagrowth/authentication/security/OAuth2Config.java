@@ -14,15 +14,15 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
   private UserDetailsService userDetailsService;
 
   public OAuth2Config(
-      AuthenticationManager authenticationManager,
-      UserDetailsService userDetailsService) {
+      AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
     this.authenticationManager = authenticationManager;
     this.userDetailsService = userDetailsService;
   }
 
   @Override
   public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-    clients.inMemory()
+    clients
+        .inMemory()
         .withClient("ostock")
         .secret("{noop}thisissecret")
         .authorizedGrantTypes("refresh token", "password", "client credentials")
@@ -31,7 +31,6 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 
   @Override
   public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-    endpoints.authenticationManager(authenticationManager)
-        .userDetailsService(userDetailsService);
+    endpoints.authenticationManager(authenticationManager).userDetailsService(userDetailsService);
   }
 }
