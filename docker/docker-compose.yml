@@ -113,6 +113,10 @@ services:
     depends_on:
       configserver:
         condition: service_started
+      database:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_started
     networks:
       backend:
         aliases:
