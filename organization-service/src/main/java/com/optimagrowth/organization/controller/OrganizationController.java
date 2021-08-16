@@ -30,19 +30,23 @@ public class OrganizationController {
     return ResponseEntity.ok(organizationService.findById(organizationId));
   }
 
-  @PostMapping(name = "/{organizationId}")
+  @PostMapping
   public ResponseEntity<Organization> create(@RequestBody Organization organization) {
-    return ResponseEntity.ok(organizationService.update(organization));
+    return ResponseEntity.ok(organizationService.create(organization));
   }
 
-  @PutMapping(name = "/{organizationId}")
-  public void update(@RequestBody Organization organization) {
+  @PutMapping(value = "/{organizationId}")
+  public void update(
+      @PathVariable("organizationId") String organizationId,
+      @RequestBody Organization organization) {
     organizationService.update(organization);
   }
 
-  @DeleteMapping(name = "/{organizationId}")
+  @DeleteMapping(value = "/{organizationId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@RequestBody Organization organization) {
+  public void delete(
+      @PathVariable("organizationId") String organizationId,
+      @RequestBody Organization organization) {
     organizationService.delete(organization);
   }
 }
