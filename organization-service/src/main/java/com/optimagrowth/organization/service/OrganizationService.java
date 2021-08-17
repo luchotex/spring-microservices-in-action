@@ -19,7 +19,7 @@ public class OrganizationService {
 
   public Organization findById(String organizationId) {
     Optional<Organization> result = repository.findById(organizationId);
-    sleep();
+    //    sleep();
 
     return result.isPresent() ? result.get() : null;
   }
