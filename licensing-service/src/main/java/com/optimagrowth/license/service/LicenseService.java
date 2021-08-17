@@ -55,6 +55,11 @@ public class LicenseService {
               licenseId,
               organizationId));
     }
+
+    Organization organization = retrieveOrganizationInfo(organizationId, "");
+
+    setOrganizationData(license, organization);
+
     return license.withComment(config.getExampleProperty());
   }
 
@@ -97,14 +102,18 @@ public class LicenseService {
     }
     Organization organization = retrieveOrganizationInfo(organizationId, clientType);
 
+    setOrganizationData(license, organization);
+
+    return license.withComment(config.getExampleProperty());
+  }
+
+  private void setOrganizationData(License license, Organization organization) {
     if (!Objects.isNull(organization)) {
       license.setOrganizationName(organization.getName());
       license.setContactName(organization.getContactName());
       license.setContactEmail(organization.getContactEmail());
       license.setContactPhone(organization.getContactPhone());
     }
-
-    return license.withComment(config.getExampleProperty());
   }
 
   private Organization retrieveOrganizationInfo(String organizationId, String clientType) {
