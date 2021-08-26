@@ -12,8 +12,8 @@ public class UserContext {
   public static final String USER_ID = "tmx-user-id";
   public static final String ORGANIZATION_ID = "tmx-organization-id";
 
-  @Getter @Setter private String correlationId = new String();
-  @Getter @Setter private String authToken = new String();
-  @Getter @Setter private String userId = new String();
-  @Getter @Setter private String organizationId = new String();
+  @Getter @Setter private static String correlationId = new String();
+  @Getter @Setter private static String authToken = new String();
+  @Getter @Setter private static String userId = new String();
+  @Getter @Setter private static String organizationId = new String();
 }

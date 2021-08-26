@@ -1,7 +1,11 @@
 package com.optimagrowth.license;
 
+import com.optimagrowth.license.config.ServiceConfig;
+import com.optimagrowth.license.events.model.OrganizationChangeModel;
 import com.optimagrowth.license.utils.UserContextInterceptor;
 import java.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,9 +14,14 @@ import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
@@ -29,10 +38,22 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 @EnableFeignClients
 @EnableCircuitBreaker
 @EnableResourceServer
+@EnableBinding(Sink.class)
+@Slf4j
 public class LicensingServiceApplication {
+
+  @Autowired private ServiceConfig serviceConfig;
 
   public static void main(String[] args) {
     SpringApplication.run(LicensingServiceApplication.class, args);
+  }
+
+  @StreamListener(Sink.INPUT)
+  public void loggerSink(OrganizationChangeModel orgChange) {
+    log.debug(
+        "Received and {} event for organization id {}",
+        orgChange.getAction(),
+        orgChange.getOrganizationId());
   }
 
   @Bean
@@ -73,5 +94,15 @@ public class LicensingServiceApplication {
       @Qualifier("oauth2ClientContext") OAuth2ClientContext oauth2ClientContext,
       OAuth2ProtectedResourceDetails details) {
     return new OAuth2RestTemplate(details, oauth2ClientContext);
+  }
+
+  @Bean
+  public JedisConnectionFactory jedisConnectionFactory() {
+    String hostName = serviceConfig.getRedisServer();
+    Integer port = Integer.valueOf(serviceConfig.getRedisPort());
+
+    RedisStandaloneConfiguration redisStandaloneConfiguration =
+        new RedisStandaloneConfiguration(hostName, port);
+    return new JedisConnectionFactory(redisStandaloneConfiguration);
   }
 }
