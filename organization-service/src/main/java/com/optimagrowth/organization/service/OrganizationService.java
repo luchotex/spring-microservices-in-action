@@ -1,5 +1,6 @@
 package com.optimagrowth.organization.service;
 
+import com.optimagrowth.organization.events.source.SimpleSourceBean;
 import com.optimagrowth.organization.model.Organization;
 import com.optimagrowth.organization.repository.OrganizationRepository;
 import java.util.Optional;
@@ -12,9 +13,11 @@ import org.springframework.stereotype.Service;
 public class OrganizationService {
 
   private OrganizationRepository repository;
+  private SimpleSourceBean simpleSourceBean;
 
-  public OrganizationService(OrganizationRepository repository) {
+  public OrganizationService(OrganizationRepository repository, SimpleSourceBean simpleSourceBean) {
     this.repository = repository;
+    this.simpleSourceBean = simpleSourceBean;
   }
 
   public Organization findById(String organizationId) {
@@ -27,6 +30,7 @@ public class OrganizationService {
   public Organization create(Organization organization) {
     organization.setId(UUID.randomUUID().toString());
     repository.save(organization);
+    simpleSourceBean.publishOrganizationChange("SAVE", organization.getId());
     return organization;
   }
 
