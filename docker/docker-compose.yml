@@ -2,6 +2,7 @@ version: '3.7'
 services:
   database:
     image: postgres:latest
+    container_name: postgres
     ports:
       - "5432:5432"
     environment:
@@ -9,23 +10,24 @@ services:
       POSTGRES_PASSWORD: "admin"
       POSTGRES_DB: "ostock_dev"
     volumes:
-        - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
-        - ./data.sql:/docker-entrypoint-initdb.d/2-data.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
+      - ./data.sql:/docker-entrypoint-initdb.d/2-data.sql
     networks:
       backend:
         aliases:
-            - "database"
+          - "database"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   configserver:
-#    build:
-#      context: ../configserver
-#      dockerfile: Dockerfile
+    #    build:
+    #      context: ../configserver
+    #      dockerfile: Dockerfile
     image: luchotex1989/configserver:0.0.3-SNAPSHOT
+    container_name: configServer
     ports:
       - "8071:8071"
     environment:
@@ -37,6 +39,7 @@ services:
 
   licensingservice:
     image: luchotex1989/licensing-service:0.0.2-SNAPSHOT
+    container_name: licensing-service
     ports:
       - "8080:8080"
     environment:
@@ -55,6 +58,7 @@ services:
     command: java -cp app:app/lib/* com.optimagrowth.license.LicensingServiceApplication
   eurekaserver:
     image: luchotex1989/eurekaserver:0.0.1-SNAPSHOT
+    container_name: eurekaServer
     ports:
       - "8070:8070"
     environment:
@@ -68,9 +72,10 @@ services:
     networks:
       backend:
         aliases:
-            - "eurekaserver"
+          - "eurekaserver"
   organizationservice:
     image: luchotex1989/organization-service:0.0.1-SNAPSHOT
+    container_name: organization-service
     ports:
       - "8082:8082"
     environment:
@@ -89,10 +94,11 @@ services:
         condition: service_started
     networks:
       - backend
-#    command: java -cp app:app/lib/* com.optimagrowth.organization.OrganizationServiceApplication
+  #    command: java -cp app:app/lib/* com.optimagrowth.organization.OrganizationServiceApplication
 
   gatewayserver:
     image: luchotex1989/gatewayserver:0.0.1-SNAPSHOT
+    container_name: gateway
     ports:
       - "8072:8072"
     environment:
@@ -127,6 +133,7 @@ services:
           - "authentication"
   zookeeper:
     image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
     ports:
       - 2181:2181
     networks:
@@ -135,6 +142,7 @@ services:
           - "zookeeper"
   kafkaserver:
     image: wurstmeister/kafka:latest
+    container_name: kafka
     ports:
       - 9092:9092
     environment:
@@ -150,12 +158,65 @@ services:
           - "kafka"
   redisserver:
     image: redis:alpine
+    container_name: redis
     ports:
       - 6379:6379
     networks:
       backend:
         aliases:
           - "redis"
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.7.0
+    container_name: logstash
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./config:/etc/logstash/conf.d
+    networks:
+      backend:
+        aliases:
+          - "logstash"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9300:9300
+      - 9200:9200
+    networks:
+      backend:
+        aliases:
+          - "elasticsearch"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.7.0
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_URL: "http://elasticsearch:9300"
+    ports:
+      - 5601:5601
+    networks:
+      backend:
+        aliases:
+          - "kibana"
+
+volumes:
+  esdata1:
+    driver: local
+
 networks:
   backend:
     driver: bridge
