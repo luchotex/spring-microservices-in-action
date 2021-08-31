@@ -1,6 +1,7 @@
 package com.optimagrowth.organization.events.source;
 
 import com.optimagrowth.organization.events.model.OrganizationChangeModel;
+import com.optimagrowth.organization.utils.ActionEnum;
 import com.optimagrowth.organization.utils.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.messaging.Source;
@@ -17,13 +18,13 @@ public class SimpleSourceBean {
     this.source = source;
   }
 
-  public void publishOrganizationChange(String action, String organizationId) {
+  public void publishOrganizationChange(ActionEnum action, String organizationId) {
     log.debug("Sending kafka message {} for Organization Id: {}", action, organizationId);
 
     OrganizationChangeModel change =
         new OrganizationChangeModel(
             OrganizationChangeModel.class.getTypeName(),
-            action,
+            action.toString(),
             organizationId,
             UserContext.getCorrelationId());
 
