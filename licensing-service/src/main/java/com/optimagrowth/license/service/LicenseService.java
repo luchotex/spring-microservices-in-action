@@ -8,6 +8,7 @@ import com.optimagrowth.license.service.client.OrganizationDiscoveryClient;
 import com.optimagrowth.license.service.client.OrganizationFeignClient;
 import com.optimagrowth.license.service.client.OrganizationRestTemplateClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -106,7 +107,7 @@ public class LicenseService {
     return license.withComment(config.getExampleProperty());
   }
 
-  @CircuitBreaker(name = "licenseService")
+  @CircuitBreaker(name = "licenseService", fallbackMethod = "buildFallbackLicenseList")
   public List<License> getLicensesByOrganization(String organizationId) throws TimeoutException {
     randomlyRunLong();
     return licenseRepository.findByOrganizationId(organizationId);
@@ -150,5 +151,16 @@ public class LicenseService {
     } catch (InterruptedException e) {
       log.error(e.getMessage());
     }
+  }
+
+  private List<License> buildFallbackLicenseList(String organizationId, Throwable t) {
+    List<License> result = new ArrayList<>();
+    License license = new License();
+    license.setLicenseId("0000000-00-00000");
+    license.setOrganizationId(organizationId);
+    license.setProductName("Sorry no licensing information currently available");
+    result.add(license);
+
+    return result;
   }
 }

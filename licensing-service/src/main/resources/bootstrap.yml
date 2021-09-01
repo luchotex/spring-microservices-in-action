@@ -6,19 +6,19 @@ spring:
   cloud:
     config:
       uri: http://localhost:8071
-resilience4j:
-  circuitbreaker:
+resilience4j.circuitbreaker:
+  instances:
     licenseService:
       registerHealthIndicator: true
-        ringBufferSizeInClosedState: 5
-        ringBufferSizeInHalfOpenState: 3
-        waitDurationInOpenState: 10s
-        failureRateThreshold: 50
-        recordExceptions:
-          - org.springframework.web.client.HttpServerErrorException
-          - java.io.IOException
-          - java.util.concurrent.TimeoutException
-          - org.springframework.web.client.ResourceAccessException
+      ringBufferSizeInClosedState: 5
+      ringBufferSizeInHalfOpenState: 3
+      waitDurationInOpenState: 10s
+      failureRateThreshold: 50
+      recordExceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.io.IOException
+        - java.util.concurrent.TimeoutException
+        - org.springframework.web.client.ResourceAccessException
     organizationService:
       registerHealthIndicator: true
       ringBufferSizeInClosedState: 6
