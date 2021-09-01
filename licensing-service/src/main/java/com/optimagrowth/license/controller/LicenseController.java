@@ -5,7 +5,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import com.optimagrowth.license.model.License;
 import com.optimagrowth.license.service.LicenseService;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeoutException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,5 +68,11 @@ public class LicenseController {
       @PathVariable("licenseId") String licenseId,
       @PathVariable("clientType") String clientType) {
     return licenseService.getLicense(organizationId, licenseId, clientType);
+  }
+
+  @GetMapping(value = "/")
+  public List<License> getLicense(@PathVariable("organizationId") String organizationId)
+      throws TimeoutException {
+    return licenseService.getLicensesByOrganization(organizationId);
   }
 }

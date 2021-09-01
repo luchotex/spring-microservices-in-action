@@ -7,13 +7,19 @@ import com.optimagrowth.license.repository.LicenseRepository;
 import com.optimagrowth.license.service.client.OrganizationDiscoveryClient;
 import com.optimagrowth.license.service.client.OrganizationFeignClient;
 import com.optimagrowth.license.service.client.OrganizationRestTemplateClient;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class LicenseService {
 
   private MessageSource messages;
@@ -100,6 +106,13 @@ public class LicenseService {
     return license.withComment(config.getExampleProperty());
   }
 
+  @CircuitBreaker(name = "licenseService")
+  public List<License> getLicensesByOrganization(String organizationId) throws TimeoutException {
+    randomlyRunLong();
+    return licenseRepository.findByOrganizationId(organizationId);
+  }
+
+  @CircuitBreaker(name = "organizationService")
   private Organization retrieveOrganizationInfo(String organizationId, String clientType) {
     Organization result = null;
 
@@ -120,5 +133,22 @@ public class LicenseService {
     }
 
     return result;
+  }
+
+  private void randomlyRunLong() throws TimeoutException {
+    Random rand = new Random();
+    int randomNum = rand.nextInt(3) + 1;
+    if (randomNum == 3) {
+      sleep();
+    }
+  }
+
+  private void sleep() throws TimeoutException {
+    try {
+      Thread.sleep(5000);
+      throw new java.util.concurrent.TimeoutException();
+    } catch (InterruptedException e) {
+      log.error(e.getMessage());
+    }
   }
 }
